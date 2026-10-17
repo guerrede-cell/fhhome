@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts } from '../../lib/posts';
+import categories from '../../data/categories.json';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return Object.entries(categories as Record<string, string>).map(([slug, name]) => ({
+    params: { slug },
+    props: { name, posts: posts.filter((p) => p.data.category === slug) },
+  }));
+}
+
+const { name, posts } = Astro.props;
+---
+<Base title={`${name} | FH Home Improvements Blog`} description={`${name} articles from FH Home Improvements in New Jersey.`} wfPage="67e4c792576f8dfd5308a3a8">
+  <section class="blogsection">
+    <div class="mycontain-1280">
+      <div class="blogdivblock">
+        <div class="text-block-25">{name}</div>
+      </div>
+    </div>
+  </section>
+  <section class="elementsectionblogging">
+    <div class="bloggingforajwrapper">
+      <div class="collection-list-wrapper w-dyn-list">
+        {posts.length ? (
+          <div role="list" class="collection-list w-dyn-items w-row">
+            {posts.map((post) => <PostCard post={post} />)}
+          </div>
+        ) : (
+          <div class="w-dyn-empty"><div>No posts in this category yet.</div></div>
+        )}
+      </div>
+    </div>
+  </section>
+</Base>

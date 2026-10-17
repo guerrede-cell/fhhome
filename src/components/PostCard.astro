@@ -1,0 +1,30 @@
+---
+// One blog card, using the same Webflow classes as the original Blog page.
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../lib/posts';
+import categories from '../data/categories.json';
+
+interface Props { post: CollectionEntry<'blog'> }
+const { post } = Astro.props;
+const { title, pubDate, readTime, thumbnail, cover, category } = post.data;
+const image = thumbnail || cover;
+const categoryName = category ? (categories as Record<string, string>)[category] : undefined;
+---
+<div role="listitem" class="w-dyn-item w-col w-col-4">
+  <a href={`/blog-post/${post.id}`} class="main-thumb-dic w-inline-block">
+    <div class="thumbnail" style={image ? `background-image:url("${image}")` : undefined}></div>
+    <div class="div-block-50">
+      <div class="div-block-51">
+        <div class="bloggingtextyblock">{formatDate(pubDate)}</div>
+        {readTime && (
+          <div class="div-block-52">
+            <div class="bloggingtextyblock">{readTime} MIN</div>
+            <div class="bloggingtextyblock read">Read Time</div>
+          </div>
+        )}
+      </div>
+      <h3 class="bloggingh3style">{title}</h3>
+      {categoryName && <div class="bloggingtextyblock read">{categoryName}</div>}
+    </div>
+  </a>
+</div>

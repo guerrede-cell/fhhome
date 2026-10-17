@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts } from '../lib/posts';
+
+const posts = await getPosts();
+const description = 'Expert tips, trends, and guides on kitchen remodeling, bathroom renovation, and home improvement in New Jersey';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Blog',
+  url: new URL('/blog', Astro.site).href,
+  description,
+  blogPost: posts.map((p) => ({
+    '@type': 'BlogPosting',
+    headline: p.data.title,
+    url: new URL(`/blog-post/${p.id}`, Astro.site).href,
+    datePublished: p.data.pubDate.toISOString().slice(0, 10),
+    inLanguage: 'en',
+  })),
+};
+---
+<Base title="Blog | FH Home Improvements" description={description} wfPage="67e4c792576f8dfd5308a3a8" jsonLd={jsonLd}>
+  <section class="blogsection">
+    <div class="mycontain-1280">
+      <div class="blogdivblock">
+        <div class="text-block-25">BLOG</div>
+      </div>
+    </div>
+  </section>
+  <section class="elementsectionblogging">
+    <div class="bloggingforajwrapper">
+      <div class="collection-list-wrapper w-dyn-list">
+        <div role="list" class="collection-list w-dyn-items w-row">
+          {posts.map((post) => <PostCard post={post} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

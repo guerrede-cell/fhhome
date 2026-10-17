@@ -1,0 +1,63 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getPosts, formatDate } from '../../lib/posts';
+import categories from '../../data/categories.json';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+const categoryName = d.category ? (categories as Record<string, string>)[d.category] : undefined;
+const url = new URL(`/blog-post/${post.id}`, Astro.site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.metaDescription || d.description,
+  image: d.cover ? new URL(d.cover, Astro.site).href : undefined,
+  datePublished: d.pubDate.toISOString(),
+  dateModified: (d.updatedDate || d.pubDate).toISOString(),
+  author: { '@type': 'Organization', name: 'FH Home' },
+  publisher: { '@type': 'Organization', name: 'FH Home' },
+  url,
+  inLanguage: 'en',
+  articleSection: categoryName,
+};
+---
+<Base
+  title={d.metaTitle || d.title}
+  description={d.metaDescription || d.description}
+  image={d.cover}
+  wfPage="67f09568ba76f3a91cb90b50"
+  nav="post"
+  jsonLd={jsonLd}
+>
+  <section class="blogsec">
+    <div class="div-block-57">
+      <div class="div-block-53" style={d.cover ? `background-image:url("${d.cover}")` : undefined}></div>
+      <div class="div-block-54">
+        <div class="div-block-55">
+          <div class="text-block-26">{formatDate(d.pubDate)}</div>
+          {d.readTime && (
+            <div class="div-block-56">
+              <div class="text-block-26">{d.readTime} MIN</div>
+              <div class="text-block-26 readtime2">Read Time</div>
+            </div>
+          )}
+        </div>
+        <h1 class="titlesofbloggingtemplate">{d.title}</h1>
+      </div>
+      <div class="div-block-58">
+        <div class="rich-text-block w-richtext">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
